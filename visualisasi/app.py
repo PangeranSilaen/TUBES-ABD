@@ -1,13 +1,16 @@
-import os
-from dotenv import load_dotenv
-load_dotenv()
-
 import streamlit as st
 import pandas as pd
 import altair as alt
 from sqlalchemy import create_engine
+import os
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+# Baca dari Streamlit Secrets (deployment) atau .env (local)
+if "DATABASE_URL" in st.secrets:
+    DATABASE_URL = st.secrets["DATABASE_URL"]
+else:
+    from dotenv import load_dotenv
+    load_dotenv()
+    DATABASE_URL = os.getenv("DATABASE_URL")
 
 st.set_page_config(page_title="Visualisasi E-Commerce (Supabase)", layout="wide")
 
