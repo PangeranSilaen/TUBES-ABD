@@ -1,0 +1,13 @@
+Customer to country : N to 1
+Customer to customer_address : 1 to N
+Customer to product_review : 1 to N
+Customer to order : 1 to N
+Customer_address to customer: N to 1
+Shipping to order : 1 to 1
+Product_review to product : N to 1
+order to order_items: 1 to N
+product to order_items: 1 to N
+product to store : N to 1
+product to category : N to 1
+product to brand : N to 1
+product to stock : 1 to N
