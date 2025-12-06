@@ -155,21 +155,26 @@ ORDER BY pr.review_date DESC
 LIMIT 100"""
         }
         
-        selected_example = st.selectbox(
-            "Load Example Query",
-            ["-- Select an example --"] + list(example_queries.keys()),
-            key="example_selector"
-        )
-        
-        if st.button("Load Example", key="load_example"):
-            if selected_example != "-- Select an example --":
-                st.session_state.custom_query = example_queries[selected_example]
-                st.rerun()
-        
-        # SQL Query Input
+        # Initialize custom query in session state
         if 'custom_query' not in st.session_state:
             st.session_state.custom_query = "SELECT * FROM customer LIMIT 10"
         
+        col_ex1, col_ex2 = st.columns([3, 1])
+        with col_ex1:
+            selected_example = st.selectbox(
+                "Load Example Query",
+                ["-- Select an example --"] + list(example_queries.keys()),
+                key="example_selector"
+            )
+        with col_ex2:
+            st.write("")
+            st.write("")
+            if st.button("Load Example", key="load_example", use_container_width=True):
+                if selected_example != "-- Select an example --":
+                    st.session_state.custom_query = example_queries[selected_example]
+                    st.rerun()
+        
+        # SQL Query Input - use session state directly
         custom_query = st.text_area(
             "SQL Query",
             value=st.session_state.custom_query,
@@ -178,20 +183,22 @@ LIMIT 100"""
             key="sql_input"
         )
         
-        # Update session state
-        st.session_state.custom_query = custom_query
+        # Update session state when user types
+        if custom_query != st.session_state.custom_query:
+            st.session_state.custom_query = custom_query
         
-        # Query controls
+        # Query controls with explanations
+        st.caption("💡 **Format SQL**: Merapikan query dengan indentasi dan spasi yang benar agar lebih mudah dibaca")
         col1, col2, col3, col4 = st.columns([2, 2, 2, 2])
         
         with col1:
-            run_query = st.button("Run Query", type="primary", key="run_sql")
+            run_query = st.button("Run Query", type="primary", key="run_sql", use_container_width=True)
         with col2:
-            format_query = st.button("Format SQL", key="format_sql")
+            format_query = st.button("Format SQL", key="format_sql", use_container_width=True)
         with col3:
-            validate_only = st.button("Validate", key="validate_sql")
+            validate_only = st.button("Validate", key="validate_sql", use_container_width=True)
         with col4:
-            clear_query = st.button("Clear", key="clear_sql")
+            clear_query = st.button("Clear", key="clear_sql", use_container_width=True)
         
         # Format SQL
         if format_query:
