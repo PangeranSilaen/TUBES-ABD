@@ -169,41 +169,38 @@ LIMIT 100"""
         with col_ex2:
             st.write("")
             st.write("")
-            if st.button("Load Example", key="load_example", use_container_width=True):
+            if st.button("Load Example", key="load_example"):
                 if selected_example != "-- Select an example --":
                     st.session_state.custom_query = example_queries[selected_example]
                     st.rerun()
         
-        # SQL Query Input - use session state directly
-        custom_query = st.text_area(
+        # SQL Query Input
+        st.text_area(
             "SQL Query",
             value=st.session_state.custom_query,
             height=250,
             help="Enter any SQL query. Complex queries with JOINs, CTEs, subqueries are supported.",
-            key="sql_input"
+            key="sql_input",
+            on_change=lambda: st.session_state.update({'custom_query': st.session_state.sql_input})
         )
-        
-        # Update session state when user types
-        if custom_query != st.session_state.custom_query:
-            st.session_state.custom_query = custom_query
         
         # Query controls with explanations
         st.caption("💡 **Format SQL**: Merapikan query dengan indentasi dan spasi yang benar agar lebih mudah dibaca")
         col1, col2, col3, col4 = st.columns([2, 2, 2, 2])
         
         with col1:
-            run_query = st.button("Run Query", type="primary", key="run_sql", use_container_width=True)
+            run_query = st.button("Run Query", type="primary", key="run_sql")
         with col2:
-            format_query = st.button("Format SQL", key="format_sql", use_container_width=True)
+            format_query = st.button("Format SQL", key="format_sql")
         with col3:
-            validate_only = st.button("Validate", key="validate_sql", use_container_width=True)
+            validate_only = st.button("Validate", key="validate_sql")
         with col4:
-            clear_query = st.button("Clear", key="clear_sql", use_container_width=True)
+            clear_query = st.button("Clear", key="clear_sql")
         
         # Format SQL
         if format_query:
             try:
-                formatted = format_sql(custom_query)
+                formatted = format_sql(st.session_state.sql_input)
                 st.session_state.custom_query = formatted
                 st.success("✓ Query formatted!")
                 st.rerun()
@@ -217,7 +214,7 @@ LIMIT 100"""
         
         # Validate query
         if validate_only:
-            is_safe, query_type, warning = validate_sql_query(custom_query)
+            is_safe, query_type, warning = validate_sql_query(st.session_state.sql_input)
             if is_safe:
                 st.success(f"✓ Query is valid. Type: {query_type or 'SELECT'}")
                 if warning:
@@ -226,9 +223,9 @@ LIMIT 100"""
                 st.error(warning or "Query validation failed")
         
         # Run query
-        if run_query and custom_query:
+        if run_query and st.session_state.sql_input:
             # Validate first
-            is_safe, query_type, warning = validate_sql_query(custom_query)
+            is_safe, query_type, warning = validate_sql_query(st.session_state.sql_input)
             
             if not is_safe:
                 st.error(warning or "Query blocked for safety")
@@ -243,7 +240,7 @@ LIMIT 100"""
                 # Execute query
                 with st.spinner("Executing query..."):
                     start_time = datetime.now()
-                    result, error = execute_query_safe(custom_query)
+                    result, error = execute_query_safe(st.session_state.sql_input)
                     execution_time = (datetime.now() - start_time).total_seconds()
                     
                     if error:
@@ -251,7 +248,7 @@ LIMIT 100"""
                     elif result is not None:
                         # Save to history
                         st.session_state.query_history.insert(0, {
-                            'query': custom_query,
+                            'query': st.session_state.sql_input,
                             'timestamp': datetime.now(),
                             'rows': len(result),
                             'execution_time': execution_time,
