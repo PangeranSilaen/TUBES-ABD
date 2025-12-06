@@ -175,13 +175,11 @@ LIMIT 100"""
                     st.rerun()
         
         # SQL Query Input
-        st.text_area(
+        custom_query = st.text_area(
             "SQL Query",
             value=st.session_state.custom_query,
             height=250,
-            help="Enter any SQL query. Complex queries with JOINs, CTEs, subqueries are supported.",
-            key="sql_input",
-            on_change=lambda: st.session_state.update({'custom_query': st.session_state.sql_input})
+            help="Enter any SQL query. Complex queries with JOINs, CTEs, subqueries are supported."
         )
         
         # Query controls with explanations
@@ -200,7 +198,7 @@ LIMIT 100"""
         # Format SQL
         if format_query:
             try:
-                formatted = format_sql(st.session_state.sql_input)
+                formatted = format_sql(custom_query)
                 st.session_state.custom_query = formatted
                 st.success("✓ Query formatted!")
                 st.rerun()
@@ -214,7 +212,7 @@ LIMIT 100"""
         
         # Validate query
         if validate_only:
-            is_safe, query_type, warning = validate_sql_query(st.session_state.sql_input)
+            is_safe, query_type, warning = validate_sql_query(custom_query)
             if is_safe:
                 st.success(f"✓ Query is valid. Type: {query_type or 'SELECT'}")
                 if warning:
@@ -223,9 +221,9 @@ LIMIT 100"""
                 st.error(warning or "Query validation failed")
         
         # Run query
-        if run_query and st.session_state.sql_input:
+        if run_query and custom_query:
             # Validate first
-            is_safe, query_type, warning = validate_sql_query(st.session_state.sql_input)
+            is_safe, query_type, warning = validate_sql_query(custom_query)
             
             if not is_safe:
                 st.error(warning or "Query blocked for safety")
@@ -240,7 +238,7 @@ LIMIT 100"""
                 # Execute query
                 with st.spinner("Executing query..."):
                     start_time = datetime.now()
-                    result, error = execute_query_safe(st.session_state.sql_input)
+                    result, error = execute_query_safe(custom_query)
                     execution_time = (datetime.now() - start_time).total_seconds()
                     
                     if error:
@@ -248,7 +246,7 @@ LIMIT 100"""
                     elif result is not None:
                         # Save to history
                         st.session_state.query_history.insert(0, {
-                            'query': st.session_state.sql_input,
+                            'query': custom_query,
                             'timestamp': datetime.now(),
                             'rows': len(result),
                             'execution_time': execution_time,
